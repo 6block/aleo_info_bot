@@ -27,9 +27,9 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
   // 防止重复订阅
   if (!subscriptions[chatId].includes(address)) {
     subscriptions[chatId].push(address);
-    bot.sendMessage(chatId, `你已成功订阅地址11: ${address}`);
+    bot.sendMessage(chatId, `你已成功订阅地址: ${address}`);
   } else {
-    bot.sendMessage(chatId, `你已经订阅了该地址11: ${address}`);
+    bot.sendMessage(chatId, `你已经订阅了该地址: ${address}`);
   }
 });
 
@@ -43,22 +43,43 @@ cron.schedule('*/1 * * * *', async () => {
       try {
         bot.sendMessage(chatId, `address===${address}`);
         // 请求数据
-        const response = await axios.get(`https://zk.work/api/aleo/miner/aleo103cy9j4tggv09chgz6hjwajghv83e8uqmka4cjyazefqd8qaws8s073mr8/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
-        bot.sendMessage(chatId, `22222222222`);
-        bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response.data)}`);
-        // const data = response.data.records;
+        const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
+        bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response.data.data.records)}`);
+        const records = response.data.data.records;
 
-        // 遍历数据并检查 isFalse 是否为 true
-        // data.forEach(item => {
-        //   bot.sendMessage(chatId, `name: ${item.name} 已掉线`);
-        // });
+        // 遍历数据
+        records.forEach(item => {
+          let name = item.name.split(' ')[0]
+          let time = item.lastSeenTimestamp - Math.floor(new Date().getTime() / 1000)
+
+          bot.sendMessage(chatId, `${name} 已掉线 ${formatTimeDifference(time)}`);
+        });
 
       } catch (error) {
-        bot.sendMessage(chatId, `请求地址 ${address} 时发生错误:${JSON.stringify(error)}`);
+        bot.sendMessage(chatId, `请求地址 ${address} 时发生错误:${error}`);
       }
     }
   }
 });
+
+function formatTimeDifference(timeInSeconds) {
+  let result = '';
+  const seconds = timeInSeconds % 60; // Remaining seconds
+  const minutes = timeInSeconds / 60; // 1 minute = 60 seconds
+  const hours = timeInSeconds / 60 / 60
+  const days = timeInSeconds / 60 / 60 / 60
+  if(days > 1){
+    result = `${days} days `
+  }
+  if(hours > 1){
+    result = result + `${hours} hours `
+  }
+  if(minutes > 1){
+    result = result + `${minutes} minutes `
+  }
+  result = result + `${seconds} seconds`
+  return result;
+}
 
 // 处理 /unsubscribe 命令，用户取消订阅
 bot.onText(/\/unsubscribe (.+)/, (msg, match) => {
