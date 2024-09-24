@@ -27,9 +27,9 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
   // 防止重复订阅
   if (!subscriptions[chatId].includes(address)) {
     subscriptions[chatId].push(address);
-    bot.sendMessage(chatId, `你已成功订阅地址: ${address}`);
+    bot.sendMessage(chatId, `你已成功订阅地址11: ${address}`);
   } else {
-    bot.sendMessage(chatId, `你已经订阅了该地址: ${address}`);
+    bot.sendMessage(chatId, `你已经订阅了该地址11: ${address}`);
   }
 });
 
