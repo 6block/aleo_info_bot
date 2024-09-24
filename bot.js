@@ -33,9 +33,8 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
   }
 });
 
-// 定时任务每隔7分钟检查订阅的地址
-cron.schedule('*/7 * * * *', async () => {
-  console.log('正在检查订阅的地址...');
+// 定时任务每隔1分钟检查订阅的地址
+cron.schedule('*/1 * * * *', async () => {
   bot.sendMessage('正在检查订阅的地址...');
   for (const chatId in subscriptions) {
     const addresses = subscriptions[chatId];
@@ -53,7 +52,7 @@ cron.schedule('*/7 * * * *', async () => {
         });
 
       } catch (error) {
-        console.error(`请求地址 ${address} 时发生错误:`, error);
+        bot.sendMessage(`请求地址 ${address} 时发生错误:`, JSON.stringify(error));
       }
     }
   }
