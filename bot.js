@@ -48,9 +48,7 @@ cron.schedule('*/2 * * * *', async () => {
 
         // 遍历数据并检查 isFalse 是否为 true
         data.forEach(item => {
-          if (item.isFalse) {
-            bot.sendMessage(chatId, `name: ${item.name} 已掉线`);
-          }
+          bot.sendMessage(chatId, `name: ${item.name} 已掉线`);
         });
 
       } catch (error) {
