@@ -33,8 +33,8 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
   }
 });
 
-// 定时任务每隔7分钟检查订阅的地址
-cron.schedule('*/7 * * * *', async () => {
+// 定时任务每隔2分钟检查订阅的地址
+cron.schedule('*/2 * * * *', async () => {
   console.log('正在检查订阅的地址...');
   
   for (const chatId in subscriptions) {
@@ -43,13 +43,13 @@ cron.schedule('*/7 * * * *', async () => {
     for (const address of addresses) {
       try {
         // 请求数据
-        const response = await axios.get(`https://aleo.info/address/${address}`);
-        const data = response.data;
+        const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
+        const data = response.data.records;
 
         // 遍历数据并检查 isFalse 是否为 true
         data.forEach(item => {
           if (item.isFalse) {
-            bot.sendMessage(chatId, `地址 ${item.adress1} 存在 isFalse: true`);
+            bot.sendMessage(chatId, `name: ${item.name} 已掉线`);
           }
         });
 
