@@ -35,7 +35,7 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
 
 // 定时任务每隔1分钟检查订阅的地址
 cron.schedule('*/1 * * * *', async () => {
-  bot.sendMessage('正在检查订阅的地址...');
+  bot.sendMessage(chatId, '正在检查订阅的地址...');
   for (const chatId in subscriptions) {
     const addresses = subscriptions[chatId];
     
@@ -43,7 +43,7 @@ cron.schedule('*/1 * * * *', async () => {
       try {
         // 请求数据
         const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
-        bot.sendMessage('返回的数据为：',JSON.stringify(response));
+        bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response)}`);
         const data = response.data.records;
 
         // 遍历数据并检查 isFalse 是否为 true
@@ -52,7 +52,7 @@ cron.schedule('*/1 * * * *', async () => {
         });
 
       } catch (error) {
-        bot.sendMessage(`请求地址 ${address} 时发生错误:`, JSON.stringify(error));
+        bot.sendMessage(chatId, `请求地址 ${address} 时发生错误:${JSON.stringify(error)}`);
       }
     }
   }
