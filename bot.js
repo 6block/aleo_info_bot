@@ -41,7 +41,7 @@ cron.schedule('*/1 * * * *', async () => {
     
     for (const address of addresses) {
       try {
-        bot.sendMessage(chatId, `666666`);
+        bot.sendMessage(chatId, `address===${address}`);
         // 请求数据
         const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
         bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response)}`);
