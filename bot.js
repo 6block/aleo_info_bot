@@ -43,7 +43,7 @@ cron.schedule('*/1 * * * *', async () => {
       try {
         bot.sendMessage(chatId, `address===${address}`);
         // 请求数据
-        const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
+        const response = await axios.get(`https://zk.work/api/aleo/miner/aleo103cy9j4tggv09chgz6hjwajghv83e8uqmka4cjyazefqd8qaws8s073mr8/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
         bot.sendMessage(chatId, `22222222222`);
         bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response)}`);
         // const data = response.data.records;
