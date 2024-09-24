@@ -6,6 +6,25 @@ const cron = require('node-cron');
 const token = '7833363994:AAE8zLlAj_u9FEqUIZtJrC2J0JfIpdYl7Z0';  // 将 YOUR_TELEGRAM_BOT_TOKEN 替换为你从 BotFather 获得的 Token
 const bot = new TelegramBot(token, { polling: true });
 
+function formatTimeDifference(timeInSeconds) {
+  let result = '';
+  const seconds = timeInSeconds % 60; // Remaining seconds
+  const minutes = timeInSeconds / 60; // 1 minute = 60 seconds
+  const hours = timeInSeconds / 60 / 60
+  const days = timeInSeconds / 60 / 60 / 60
+  if(days > 1){
+    result = `${days} days `
+  }
+  if(hours > 1){
+    result = result + `${hours} hours `
+  }
+  if(minutes > 1){
+    result = result + `${minutes} minutes `
+  }
+  result = result + `${seconds} seconds`
+  return result;
+}
+
 // 存储用户订阅的地址
 let subscriptions = {};
 
@@ -61,25 +80,6 @@ cron.schedule('*/1 * * * *', async () => {
     }
   }
 });
-
-function formatTimeDifference(timeInSeconds) {
-  let result = '';
-  const seconds = timeInSeconds % 60; // Remaining seconds
-  const minutes = timeInSeconds / 60; // 1 minute = 60 seconds
-  const hours = timeInSeconds / 60 / 60
-  const days = timeInSeconds / 60 / 60 / 60
-  if(days > 1){
-    result = `${days} days `
-  }
-  if(hours > 1){
-    result = result + `${hours} hours `
-  }
-  if(minutes > 1){
-    result = result + `${minutes} minutes `
-  }
-  result = result + `${seconds} seconds`
-  return result;
-}
 
 // 处理 /unsubscribe 命令，用户取消订阅
 bot.onText(/\/unsubscribe (.+)/, (msg, match) => {
