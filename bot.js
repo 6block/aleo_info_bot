@@ -45,7 +45,7 @@ cron.schedule('*/1 * * * *', async () => {
         // 请求数据
         const response = await axios.get(`https://zk.work/api/aleo/miner/aleo103cy9j4tggv09chgz6hjwajghv83e8uqmka4cjyazefqd8qaws8s073mr8/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
         bot.sendMessage(chatId, `22222222222`);
-        bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response)}`);
+        bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response.data)}`);
         // const data = response.data.records;
 
         // 遍历数据并检查 isFalse 是否为 true
