@@ -145,7 +145,6 @@ cron.schedule('*/5 * * * *', async () => {
         const records = response.data.data.records;
         let text = '';
         // 遍历数据
-        console.log('addresses===',addresses);
         if(records && records.length > 0){
           text = `${address}:  \n`
         }
