@@ -61,7 +61,7 @@ cron.schedule('*/1 * * * *', async () => {
       try {
         // 请求数据
         const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
-        // bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response.data.data.records)}`);
+        bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response.data.data.records)}`);
         const records = response.data.data.records;
 
         // 遍历数据
