@@ -12,7 +12,7 @@ const messageCooldown = 20000; // 20秒冷却时间
 function sendMessage(chatId, text) {
     const currentTime = Date.now();
     if (currentTime - lastMessageTime < messageCooldown) {
-        console.log(`消息发送过于频繁，需等待 ${messageCooldown / 1000} 秒后重试`);
+        console.log(`消息发送过于频繁，需等待 ${messageCooldown / 1000} 秒后重试11`);
         return;
     }
 
@@ -23,7 +23,7 @@ function sendMessage(chatId, text) {
         .catch((error) => {
             if (error.code === 'ETELEGRAM' && error.response && error.response.body && error.response.body.description.includes('Too Many Requests')) {
                 const retryAfter = parseInt(error.response.body.description.match(/\d+/)[0]) * 1000;
-                console.log(`请求过于频繁，需等待 ${retryAfter / 1000} 秒后重试`);
+                console.log(`请求过于频繁，需等待 ${retryAfter / 1000} 秒后重试22`);
                 setTimeout(() => sendMessage(chatId, text), retryAfter);
             } else {
                 console.error('发送消息时发生错误:', error);
@@ -56,7 +56,14 @@ let subscriptions = {};
 // 处理 /start 命令，提示用户输入地址
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  sendMessage(chatId, '欢迎！请输入要监控的地址，例如 /subscribe a1');
+  sendMessage(chatId, 
+    `
+      欢迎！\n
+      请输入要监控的地址，例如: /subscribe aleo1xxxxxxx \n
+      请输入要取消订阅的地址，例如: /unsubscribe aleo1xxxxxxx \n
+      查看所有已订阅的地址: /list
+    `
+  );
 });
 
 // 处理 /subscribe 命令，用户订阅特定地址
@@ -94,7 +101,7 @@ cron.schedule('*/1 * * * *', async () => {
         // 遍历数据
         records.forEach(item => {
           let name = item.name.split(' ')[0]
-          let time = item.lastSeenTimestamp - Math.floor(new Date().getTime() / 1000)
+          let time = Math.floor(new Date().getTime() / 1000) - item.lastSeenTimestamp
 
           sendMessage(chatId, `${name} 已掉线 ${formatTimeDifference(time)}`);
         });
