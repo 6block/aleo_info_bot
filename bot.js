@@ -64,6 +64,8 @@ bot.onText(/\/start/, (msg) => {
       查看所有已订阅的地址: /list
     `
   );
+  const languageCode = msg.from.language_code;
+  bot.sendMessage(chatId, `当前语言是：${languageCode}`);
 });
 
 // 处理 /subscribe 命令，用户订阅特定地址
@@ -86,16 +88,13 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
 
 // 定时任务每隔1分钟检查订阅的地址
 cron.schedule('*/1 * * * *', async () => {
-  // bot.sendMessage(chatId, '正在检查订阅的地址...');
   for (const chatId in subscriptions) {
     const addresses = subscriptions[chatId];
     
     for (const address of addresses) {
       try {
-        sendMessage(chatId, `address===${address}`);
         // 请求数据
         const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
-        sendMessage(chatId, `返回的数据为：${JSON.stringify(response.data.data.records)}`);
         const records = response.data.data.records;
 
         // 遍历数据
