@@ -56,7 +56,7 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
 cron.schedule('*/1 * * * *', async () => {
   for (const chatId in subscriptions) {
     const addresses = subscriptions[chatId];
-    
+    bot.sendMessage(chatId, `addresses==${addresses}`);
     for (const address of addresses) {
       try {
         // 请求数据
