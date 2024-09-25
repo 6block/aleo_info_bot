@@ -16,7 +16,12 @@ const subscriptionsFilePath = path.join(__dirname, 'subscriptions.json');
 function loadSubscriptions() {
   if (fs.existsSync(subscriptionsFilePath)) {
       const data = fs.readFileSync(subscriptionsFilePath, 'utf8');
-      return JSON.parse(data);
+      try {
+          return JSON.parse(data);
+      } catch (error) {
+          console.error('读取订阅数据时发生错误:', error);
+          return {}; // 返回空对象以防止崩溃
+      }
   }
   return {}; // 返回一个空对象，如果文件不存在
 }
