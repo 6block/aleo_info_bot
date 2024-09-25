@@ -143,23 +143,26 @@ cron.schedule('*/5 * * * *', async () => {
         // 请求数据
         const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
         const records = response.data.data.records;
-
+        let text = '';
         // 遍历数据
+        console.log('addresses===',addresses);
         if(records && records.length > 0){
-          sendMessage(chatId, `${address}:  `);
+          text = `${address}:  \n`
         }
         records.forEach(item => {
           let name = item.name.split(' ')[0]
           let time = Math.floor(new Date().getTime() / 1000) - item.lastSeenTimestamp
-          let text = '';
+          
           if(currentLanguage === 'zh'){
-            text = `${name} 已掉线 ${formatTimeDifference(time)}`;
+            text = text + `${name} 已掉线 ${formatTimeDifference(time)} \n`;
           }else{
-            text = `${name} has been offline for ${formatTimeDifference(time)}`
+            text = text + `${name} has been offline for ${formatTimeDifference(time)} \n`;
           }
-          sendMessage(chatId, text);
+          
         });
-
+        if(text){
+          sendMessage(chatId, text);
+        }
       } catch (error) {
         let text = '';
         if(currentLanguage === 'zh'){
