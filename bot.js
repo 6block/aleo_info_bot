@@ -57,25 +57,6 @@ cron.schedule('*/1 * * * *', async () => {
   for (const chatId in subscriptions) {
     const addresses = subscriptions[chatId];
     bot.sendMessage(chatId, `addresses==${addresses}`);
-    for (const address of addresses) {
-      try {
-        // 请求数据
-        // const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
-        // bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response.data.data.records)}`);
-        // const records = response.data.data.records;
-
-        // // 遍历数据
-        // records.forEach(item => {
-        //   let name = item.name.split(' ')[0]
-        //   let time = Math.floor(new Date().getTime() / 1000) - item.lastSeenTimestamp
-
-        //   bot.sendMessage(chatId, `${name} 已掉线 ${formatTimeDifference(time)}`);
-        // });
-
-      } catch (error) {
-        bot.sendMessage(chatId, `请求地址 ${address} 时发生错误:${error}`);
-      }
-    }
   }
 });
 
