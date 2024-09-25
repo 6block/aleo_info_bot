@@ -88,6 +88,7 @@ bot.onText(/\/start/, (msg) => {
   bot.sendMessage(chatId, 
     `
       ${currentLanguage === 'zh' ? '欢迎！':'Welcome!'}\n
+      请输入要指定的语言，例如: /language zh 或者 /language en  \n
       请输入要监控的地址，例如: /subscribe aleo1xxxxxxx \n
       请输入要取消订阅的地址，例如: /unsubscribe aleo1xxxxxxx \n
       查看所有已订阅的地址: /list
@@ -122,8 +123,8 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
 });
 
 
-// 定时任务每隔1分钟检查订阅的地址
-cron.schedule('*/1 * * * *', async () => {
+// 定时任务每隔5分钟检查订阅的地址
+cron.schedule('*/5 * * * *', async () => {
   for (const chatId in subscriptions) {
     const addresses = subscriptions[chatId];
     
