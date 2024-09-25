@@ -6,6 +6,30 @@ const cron = require('node-cron');
 const token = '7833363994:AAE8zLlAj_u9FEqUIZtJrC2J0JfIpdYl7Z0';  // 将 YOUR_TELEGRAM_BOT_TOKEN 替换为你从 BotFather 获得的 Token
 const bot = new TelegramBot(token, { polling: true });
 
+const fs = require('fs');
+const path = require('path');
+
+// 定义文件路径
+const subscriptionsFilePath = path.join(__dirname, 'subscriptions.json');
+
+// 读取订阅数据
+function loadSubscriptions() {
+  if (fs.existsSync(subscriptionsFilePath)) {
+      const data = fs.readFileSync(subscriptionsFilePath, 'utf8');
+      return JSON.parse(data);
+  }
+  return {}; // 返回一个空对象，如果文件不存在
+}
+
+// 写入订阅数据
+function saveSubscriptions() {
+  fs.writeFileSync(subscriptionsFilePath, JSON.stringify(subscriptions, null, 2));
+}
+
+// 在此处加载订阅数据
+let subscriptions = loadSubscriptions();
+
+
 let lastMessageTime = 0;
 const messageCooldown = 20000; // 20秒冷却时间
 
@@ -53,41 +77,50 @@ function formatTimeDifference(time) {
   return result.trim(); // 去掉多余空格
 }
 
-// 存储用户订阅的地址
-let subscriptions = {};
+
+// 语言
+let currentLanguage = ''; // zh  /  en
 
 // 处理 /start 命令，提示用户输入地址
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
+  currentLanguage = msg.from.language_code.includes('zh') ? 'zh':'en'; // 默认语言是跟随telegram的语言(但只支持中英文)
   bot.sendMessage(chatId, 
     `
-      欢迎！\n
+      ${currentLanguage === 'zh' ? '欢迎！':'Welcome!'}\n
       请输入要监控的地址，例如: /subscribe aleo1xxxxxxx \n
       请输入要取消订阅的地址，例如: /unsubscribe aleo1xxxxxxx \n
       查看所有已订阅的地址: /list
     `
   );
-  const languageCode = msg.from.language_code;
-  bot.sendMessage(chatId, `当前语言是：${languageCode}`);
+});
+
+// 处理 /language 命令，用户选择语言
+bot.onText(/\/language (.+)/, (msg, match) => {
+  const chatId = msg.chat.id;
+  currentLanguage = match[1] === 'zh' ? 'zh':'en';
+  bot.sendMessage(chatId, `${currentLanguage === 'zh' ? '当前语言为: ':'The current language is: '}${currentLanguage}`);
 });
 
 // 处理 /subscribe 命令，用户订阅特定地址
 bot.onText(/\/subscribe (.+)/, (msg, match) => {
   const chatId = msg.chat.id;
-  const address = match[1];  // 用户输入的地址 a1
-  
+  const address = match[1];
+
   if (!subscriptions[chatId]) {
-    subscriptions[chatId] = [];
+      subscriptions[chatId] = [];
   }
 
   // 防止重复订阅
   if (!subscriptions[chatId].includes(address)) {
-    subscriptions[chatId].push(address);
-    bot.sendMessage(chatId, `你已成功订阅地址: ${address}`);
+      subscriptions[chatId].push(address);
+      bot.sendMessage(chatId, `你已成功订阅地址: ${address}`);
+      saveSubscriptions(); // 订阅后保存数据
   } else {
-    bot.sendMessage(chatId, `你已经订阅了该地址: ${address}`);
+      bot.sendMessage(chatId, `你已经订阅了该地址: ${address}`);
   }
 });
+
 
 // 定时任务每隔1分钟检查订阅的地址
 cron.schedule('*/1 * * * *', async () => {
@@ -121,21 +154,23 @@ bot.onText(/\/unsubscribe (.+)/, (msg, match) => {
   const address = match[1];
 
   if (subscriptions[chatId] && subscriptions[chatId].includes(address)) {
-    subscriptions[chatId] = subscriptions[chatId].filter(addr => addr !== address);
-    bot.sendMessage(chatId, `你已取消订阅地址: ${address}`);
+      subscriptions[chatId] = subscriptions[chatId].filter(addr => addr !== address);
+      bot.sendMessage(chatId, `你已取消订阅地址: ${address}`);
+      saveSubscriptions(); // 取消订阅后保存数据
   } else {
-    bot.sendMessage(chatId, `你没有订阅该地址: ${address}`);
+      bot.sendMessage(chatId, `你没有订阅该地址: ${address}`);
   }
 });
+
 
 // 处理 /list 命令，列出所有已订阅的地址
 bot.onText(/\/list/, (msg) => {
   const chatId = msg.chat.id;
 
   if (subscriptions[chatId] && subscriptions[chatId].length > 0) {
-    bot.sendMessage(chatId, `你订阅的地址有: ${subscriptions[chatId].join(', ')}`);
+      bot.sendMessage(chatId, `你订阅的地址有: ${subscriptions[chatId].join(', ')}`);
   } else {
-    bot.sendMessage(chatId, '你还没有订阅任何地址');
+      bot.sendMessage(chatId, '你还没有订阅任何地址');
   }
 });
 
