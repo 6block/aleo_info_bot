@@ -54,11 +54,13 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
 
 // 定时任务每隔1分钟检查订阅的地址
 cron.schedule('*/1 * * * *', async () => {
+  // bot.sendMessage(chatId, '正在检查订阅的地址...');
   for (const chatId in subscriptions) {
     const addresses = subscriptions[chatId];
-    bot.sendMessage(chatId, `addresses：${addresses}`);
+    
     for (const address of addresses) {
       try {
+        bot.sendMessage(chatId, `address===${address}`);
         // 请求数据
         const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
         bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response.data.data.records)}`);
@@ -67,7 +69,7 @@ cron.schedule('*/1 * * * *', async () => {
         // 遍历数据
         records.forEach(item => {
           let name = item.name.split(' ')[0]
-          let time = Math.floor(new Date().getTime() / 1000) - item.lastSeenTimestamp
+          let time = item.lastSeenTimestamp - Math.floor(new Date().getTime() / 1000)
 
           bot.sendMessage(chatId, `${name} 已掉线 ${formatTimeDifference(time)}`);
         });
