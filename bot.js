@@ -34,9 +34,9 @@ function sendMessage(chatId, text) {
 function formatTimeDifference(timeInSeconds) {
   let result = '';
   const seconds = timeInSeconds % 60; // Remaining seconds
-  const minutes = timeInSeconds / 60; // 1 minute = 60 seconds
-  const hours = timeInSeconds / 60 / 60
-  const days = timeInSeconds / 60 / 60 / 60
+  const minutes = Math.floor(timeInSeconds / 60); // 1 minute = 60 seconds
+  const hours = Math.floor(timeInSeconds / 60 / 60)
+  const days = Math.floor(timeInSeconds / 60 / 60 / 60)
   if(days > 1){
     result = `${days} days `
   }
