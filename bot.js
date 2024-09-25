@@ -90,24 +90,18 @@ let currentLanguage = ''; // zh  /  en
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   currentLanguage = msg.from.language_code.includes('zh') ? 'zh':'en'; // 默认语言是跟随telegram的语言(但只支持中英文)
-  bot.sendMessage(chatId, 
-    `
-      \n
+  bot.sendMessage(chatId, `
       ${currentLanguage === 'zh' ? '欢迎使用！':'Welcome!'}\n
       ${currentLanguage === 'zh' ? '请输入你想监控的地址，例如: ':'Please enter the address you want to monitor, for example:'}\n
       /subscribe aleo1xxxxxxx \n
-      \n
       ${currentLanguage === 'zh' ? '如需取消订阅，请输入: ':'To unsubscribe, please enter:'} \n
       /unsubscribe aleo1xxxxxxx \n
-      \n
       ${currentLanguage === 'zh' ? '查看你订阅的所有地址，请输入: ':'To view all your subscribed addresses, please enter:'} \n
       /list \n
-      \n
       ${currentLanguage === 'zh' ? '语言默认跟随 Telegram 设置，手动切换语言可输入: ':'The default language follows your Telegram settings. To switch languages manually, enter:'}\n
       ●中文: /language zh \n
       ●English: /language en \n
       ${currentLanguage === 'zh' ? '当前语言: 简体中文 (zh)':'Current language: English (en)'}
-      
     `
   );
 });
@@ -134,7 +128,7 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
       bot.sendMessage(chatId, `${currentLanguage === 'zh' ? '你已成功订阅地址: ':'You have successfully subscribed to the address: '}${address}`);
       saveSubscriptions(); // 订阅后保存数据
   } else {
-      bot.sendMessage(chatId, `${currentLanguage === 'zh' ? '你已经订阅了该地址: ':'You have already subscribed to this address: '}${address} ${address}`);
+      bot.sendMessage(chatId, `${currentLanguage === 'zh' ? '你已经订阅了该地址: ':'You have already subscribed to this address: '}${address}`);
   }
 });
 
@@ -151,6 +145,9 @@ cron.schedule('*/5 * * * *', async () => {
         const records = response.data.data.records;
 
         // 遍历数据
+        if(records && records.length > 0){
+          sendMessage(chatId, `${address}:  `);
+        }
         records.forEach(item => {
           let name = item.name.split(' ')[0]
           let time = Math.floor(new Date().getTime() / 1000) - item.lastSeenTimestamp
