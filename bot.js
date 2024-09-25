@@ -56,7 +56,7 @@ let subscriptions = {};
 // 处理 /start 命令，提示用户输入地址
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  sendMessage(chatId, 
+  bot.sendMessage(chatId, 
     `
       欢迎！\n
       请输入要监控的地址，例如: /subscribe aleo1xxxxxxx \n
@@ -78,9 +78,9 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
   // 防止重复订阅
   if (!subscriptions[chatId].includes(address)) {
     subscriptions[chatId].push(address);
-    sendMessage(chatId, `你已成功订阅地址: ${address}`);
+    bot.sendMessage(chatId, `你已成功订阅地址: ${address}`);
   } else {
-    sendMessage(chatId, `你已经订阅了该地址: ${address}`);
+    bot.sendMessage(chatId, `你已经订阅了该地址: ${address}`);
   }
 });
 
