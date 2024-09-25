@@ -6,6 +6,31 @@ const cron = require('node-cron');
 const token = '7833363994:AAE8zLlAj_u9FEqUIZtJrC2J0JfIpdYl7Z0';  // 将 YOUR_TELEGRAM_BOT_TOKEN 替换为你从 BotFather 获得的 Token
 const bot = new TelegramBot(token, { polling: true });
 
+let lastMessageTime = 0;
+const messageCooldown = 20000; // 20秒冷却时间
+
+function sendMessage(chatId, text) {
+    const currentTime = Date.now();
+    if (currentTime - lastMessageTime < messageCooldown) {
+        console.log(`消息发送过于频繁，需等待 ${messageCooldown / 1000} 秒后重试`);
+        return;
+    }
+
+    bot.sendMessage(chatId, text)
+        .then(() => {
+            lastMessageTime = Date.now();
+        })
+        .catch((error) => {
+            if (error.code === 'ETELEGRAM' && error.response && error.response.body && error.response.body.description.includes('Too Many Requests')) {
+                const retryAfter = parseInt(error.response.body.description.match(/\d+/)[0]) * 1000;
+                console.log(`请求过于频繁，需等待 ${retryAfter / 1000} 秒后重试`);
+                setTimeout(() => sendMessage(chatId, text), retryAfter);
+            } else {
+                console.error('发送消息时发生错误:', error);
+            }
+        });
+}
+
 function formatTimeDifference(timeInSeconds) {
   let result = '';
   const seconds = timeInSeconds % 60; // Remaining seconds
@@ -31,7 +56,7 @@ let subscriptions = {};
 // 处理 /start 命令，提示用户输入地址
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  bot.sendMessage(chatId, '欢迎！请输入要监控的地址，例如 /subscribe a1');
+  sendMessage(chatId, '欢迎！请输入要监控的地址，例如 /subscribe a1');
 });
 
 // 处理 /subscribe 命令，用户订阅特定地址
@@ -46,9 +71,9 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
   // 防止重复订阅
   if (!subscriptions[chatId].includes(address)) {
     subscriptions[chatId].push(address);
-    bot.sendMessage(chatId, `你已成功订阅地址: ${address}`);
+    sendMessage(chatId, `你已成功订阅地址: ${address}`);
   } else {
-    bot.sendMessage(chatId, `你已经订阅了该地址: ${address}`);
+    sendMessage(chatId, `你已经订阅了该地址: ${address}`);
   }
 });
 
@@ -60,10 +85,10 @@ cron.schedule('*/1 * * * *', async () => {
     
     for (const address of addresses) {
       try {
-        bot.sendMessage(chatId, `address===${address}`);
+        sendMessage(chatId, `address===${address}`);
         // 请求数据
         const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
-        bot.sendMessage(chatId, `返回的数据为：${JSON.stringify(response.data.data.records)}`);
+        sendMessage(chatId, `返回的数据为：${JSON.stringify(response.data.data.records)}`);
         const records = response.data.data.records;
 
         // 遍历数据
@@ -71,7 +96,7 @@ cron.schedule('*/1 * * * *', async () => {
           let name = item.name.split(' ')[0]
           let time = item.lastSeenTimestamp - Math.floor(new Date().getTime() / 1000)
 
-          bot.sendMessage(chatId, `${name} 已掉线 ${formatTimeDifference(time)}`);
+          sendMessage(chatId, `${name} 已掉线 ${formatTimeDifference(time)}`);
         });
 
       } catch (error) {
@@ -88,9 +113,9 @@ bot.onText(/\/unsubscribe (.+)/, (msg, match) => {
 
   if (subscriptions[chatId] && subscriptions[chatId].includes(address)) {
     subscriptions[chatId] = subscriptions[chatId].filter(addr => addr !== address);
-    bot.sendMessage(chatId, `你已取消订阅地址: ${address}`);
+    sendMessage(chatId, `你已取消订阅地址: ${address}`);
   } else {
-    bot.sendMessage(chatId, `你没有订阅该地址: ${address}`);
+    sendMessage(chatId, `你没有订阅该地址: ${address}`);
   }
 });
 
@@ -99,9 +124,9 @@ bot.onText(/\/list/, (msg) => {
   const chatId = msg.chat.id;
 
   if (subscriptions[chatId] && subscriptions[chatId].length > 0) {
-    bot.sendMessage(chatId, `你订阅的地址有: ${subscriptions[chatId].join(', ')}`);
+    sendMessage(chatId, `你订阅的地址有: ${subscriptions[chatId].join(', ')}`);
   } else {
-    bot.sendMessage(chatId, '你还没有订阅任何地址');
+    sendMessage(chatId, '你还没有订阅任何地址');
   }
 });
 
