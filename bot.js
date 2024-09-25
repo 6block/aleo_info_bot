@@ -31,23 +31,26 @@ function sendMessage(chatId, text) {
         });
 }
 
-function formatTimeDifference(timeInSeconds) {
+function formatTimeDifference(time) {
+  const days = Math.floor(time / (24 * 3600)); // 1 day = 24 hours = 86400 seconds
+  time %= (24 * 3600);
+  
+  const hours = Math.floor(time / 3600); // 1 hour = 3600 seconds
+  time %= 3600;
+
+  const minutes = Math.floor(time / 60); // 1 minute = 60 seconds
+  const seconds = time % 60; // Remaining seconds
+
   let result = '';
-  const seconds = timeInSeconds % 60; // Remaining seconds
-  const minutes = Math.floor(timeInSeconds / 60); // 1 minute = 60 seconds
-  const hours = Math.floor(timeInSeconds / 60 / 60)
-  const days = Math.floor(timeInSeconds / 60 / 60 / 60)
-  if(days > 1){
-    result = `${days} days `
+  if (days > 0) {
+    result += `${days} days `;
   }
-  if(hours > 1){
-    result = result + `${hours} hours `
+  if (hours > 0 || days > 0) {
+    result += `${hours} hours `;
   }
-  if(minutes > 1){
-    result = result + `${minutes} minutes `
-  }
-  result = result + `${seconds} seconds`
-  return result;
+  result += `${minutes} min ${seconds < 10 ? '0' : ''}${seconds} ss`;
+
+  return result.trim(); // 去掉多余空格
 }
 
 // 存储用户订阅的地址
@@ -106,7 +109,7 @@ cron.schedule('*/1 * * * *', async () => {
         });
 
       } catch (error) {
-        bot.sendMessage(chatId, `请求地址 ${address} 时发生错误:${error}`);
+        sendMessage(chatId, `请求地址 ${address} 时发生错误:${error}`);
       }
     }
   }
@@ -119,9 +122,9 @@ bot.onText(/\/unsubscribe (.+)/, (msg, match) => {
 
   if (subscriptions[chatId] && subscriptions[chatId].includes(address)) {
     subscriptions[chatId] = subscriptions[chatId].filter(addr => addr !== address);
-    sendMessage(chatId, `你已取消订阅地址: ${address}`);
+    bot.sendMessage(chatId, `你已取消订阅地址: ${address}`);
   } else {
-    sendMessage(chatId, `你没有订阅该地址: ${address}`);
+    bot.sendMessage(chatId, `你没有订阅该地址: ${address}`);
   }
 });
 
@@ -130,9 +133,9 @@ bot.onText(/\/list/, (msg) => {
   const chatId = msg.chat.id;
 
   if (subscriptions[chatId] && subscriptions[chatId].length > 0) {
-    sendMessage(chatId, `你订阅的地址有: ${subscriptions[chatId].join(', ')}`);
+    bot.sendMessage(chatId, `你订阅的地址有: ${subscriptions[chatId].join(', ')}`);
   } else {
-    sendMessage(chatId, '你还没有订阅任何地址');
+    bot.sendMessage(chatId, '你还没有订阅任何地址');
   }
 });
 
