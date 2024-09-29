@@ -39,11 +39,11 @@ let lastMessageTime = 0;
 const messageCooldown = 20000; // 20秒冷却时间
 
 function sendMessage(chatId, text) {
-    const currentTime = Date.now();
-    if (currentTime - lastMessageTime < messageCooldown) {
-        console.log(`消息发送过于频繁，需等待 ${messageCooldown / 1000} 秒后重试`);
-        return;
-    }
+    // const currentTime = Date.now();
+    // if (currentTime - lastMessageTime < messageCooldown) {
+    //     console.log(`消息发送过于频繁，需等待 ${messageCooldown / 1000} 秒后重试`);
+    //     return;
+    // }
 
     bot.sendMessage(chatId, text)
         .then(() => {
