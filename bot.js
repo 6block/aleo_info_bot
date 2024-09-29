@@ -142,7 +142,10 @@ cron.schedule('*/5 * * * *', async () => {
       try {
         // 请求数据
         const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
-        const records = response.data.data.records;
+        let records = response.data.data.records;
+        if(!records){
+          records = []
+        }
         let text = '';
         // 遍历数据
         if(records && records.length > 0){
