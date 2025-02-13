@@ -170,7 +170,7 @@ cron.schedule('*/1 * * * *', async () => {
         let token1 = address.split('/miner/')[0]
         let token2 = token1.split('/')
         let token3 = token2[token2.length - 1]
-        
+        bot.sendMessage(chatId, `token3=${token3}---address2=${address2}---watchToken=${watchToken}`);
         // 请求数据
         const response = await axios.get(`https://zk.work/api/${token3}/miner/${address2}/workerList?page=1&size=200&isActive=false&orderBy=currentHashRate&isAsc=false&watchToken=${watchToken}`);
         let records = response.data.data.records;
