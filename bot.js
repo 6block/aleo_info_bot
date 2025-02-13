@@ -93,9 +93,9 @@ bot.onText(/\/start/, (msg) => {
   bot.sendMessage(chatId, `
       ${currentLanguage === 'zh' ? '欢迎使用！':'Welcome!'}\n
       ${currentLanguage === 'zh' ? '请输入你想监控的地址，例如: ':'Please enter the address you want to monitor, for example:'}\n
-      /subscribe aleo1xxxxxxx \n
+      /subscribe https://zk.work/aleo/xxxx?watchToken=xxx \n
       ${currentLanguage === 'zh' ? '如需取消订阅，请输入: ':'To unsubscribe, please enter:'} \n
-      /unsubscribe aleo1xxxxxxx \n
+      /unsubscribe https://zk.work/aleo/xxxx?watchToken=xxx \n
       ${currentLanguage === 'zh' ? '查看你订阅的所有地址，请输入: ':'To view all your subscribed addresses, please enter:'} \n
       /list \n
       ${currentLanguage === 'zh' ? '语言默认跟随 Telegram 设置，手动切换语言可输入: ':'The default language follows your Telegram settings. To switch languages manually, enter:'}\n
@@ -113,10 +113,33 @@ bot.onText(/\/language (.+)/, (msg, match) => {
   bot.sendMessage(chatId, `${currentLanguage === 'zh' ? '当前语言: 简体中文 (zh)':'Current language: English (en)'}`);
 });
 
+
 // 处理 /subscribe 命令，用户订阅特定地址
 bot.onText(/\/subscribe (.+)/, (msg, match) => {
   const chatId = msg.chat.id;
-  const address = match[1];
+  const address = match[1].replace(/\s/g, '');  // .replace(/\s/g, '')去掉所有空格
+
+  // 检查地址有效性
+  let address1 = address.split('/miner/')[1]
+  if (!address1) {
+    bot.sendMessage(chatId, `${currentLanguage === 'zh' ? '请输入正确的订阅地址: ':'Please enter the correct address: '} https://zk.work/aleo/xxxx?watchToken=xxx`);
+    return
+  }
+  let token1 = address.split('/miner/')[0]
+  if (!token1) {
+    bot.sendMessage(chatId, `${currentLanguage === 'zh' ? '请输入正确的订阅地址: ':'Please enter the correct address: '} https://zk.work/aleo/xxxx?watchToken=xxx`);
+    return
+  }
+  let token2 = token1.split('/')
+  if (!token2) {
+    bot.sendMessage(chatId, `${currentLanguage === 'zh' ? '请输入正确的订阅地址: ':'Please enter the correct address: '} https://zk.work/aleo/xxxx?watchToken=xxx`);
+    return
+  }
+  let token3 = token2[token2.length - 1]
+  if (!token3) {
+    bot.sendMessage(chatId, `${currentLanguage === 'zh' ? '请输入正确的订阅地址: ':'Please enter the correct address: '} https://zk.work/aleo/xxxx?watchToken=xxx`);
+    return
+  }
 
   if (!subscriptions[chatId]) {
       subscriptions[chatId] = [];
@@ -140,8 +163,16 @@ cron.schedule('*/60 * * * *', async () => {
     
     for (const address of addresses) {
       try {
+        // 解析数据
+        let address1 = address.split('/miner/')[1]
+        let address2 = address1.split('?')[0]
+        let watchToken = address2.split('watchToken=')[1]
+        let token1 = address.split('/miner/')[0]
+        let token2 = token1.split('/')
+        let token3 = token2[token2.length - 1]
+        
         // 请求数据
-        const response = await axios.get(`https://zk.work/api/aleo/miner/${address}/workerList?page=1&size=50&isActive=false&orderBy=currentHashRate&isAsc=false&nameKey=`);
+        const response = await axios.get(`https://zk.work/api/${token3}/miner/${address2}/workerList?page=1&size=200&isActive=false&orderBy=currentHashRate&isAsc=false&watchToken=${watchToken}`);
         let records = response.data.data.records;
         if(!records){
           records = []
@@ -181,7 +212,7 @@ cron.schedule('*/60 * * * *', async () => {
 // 处理 /unsubscribe 命令，用户取消订阅
 bot.onText(/\/unsubscribe (.+)/, (msg, match) => {
   const chatId = msg.chat.id;
-  const address = match[1];
+  const address = match[1].replace(/\s/g, '');  // .replace(/\s/g, '')去掉所有空格
 
   if (subscriptions[chatId] && subscriptions[chatId].includes(address)) {
       subscriptions[chatId] = subscriptions[chatId].filter(addr => addr !== address);
