@@ -156,8 +156,8 @@ bot.onText(/\/subscribe (.+)/, (msg, match) => {
 });
 
 
-// 定时任务每隔 1 分钟检查订阅的地址
-cron.schedule('*/1 * * * *', async () => {
+// 定时任务每隔 60 分钟检查订阅的地址
+cron.schedule('*/60 * * * *', async () => {
   for (const chatId in subscriptions) {
     const addresses = subscriptions[chatId];
     
